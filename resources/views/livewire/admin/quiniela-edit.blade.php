@@ -1,4 +1,7 @@
 <div>
+
+    <x-loading functionsList="addMatch, removeMatch" />
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Edición de Quiniela
@@ -209,7 +212,7 @@
                     <div class="w-1/4">
                         <div class="flex flex-col">
                             <p class="text-gray-800">Equipo local:</p>
-                            <select wire:model="suplentmatch_hometeam" class="inputcatalogues team-select">
+                            <select wire:model="substitudematch_hometeam" class="inputcatalogues team-select">
                                 <option value="">Selecciona un equipo</option>
                                 @foreach($teams as $team)
                                     <option value="{{ $team->id }}">
@@ -220,7 +223,7 @@
                             </select>
                             <div>
                                 <span class="text-red-500 text-xs italic">
-                                    @error('suplentmatch_hometeam')
+                                    @error('substitudematch_hometeam')
                                         {{$message}}
                                     @enderror
                                 </span>
@@ -231,7 +234,7 @@
                     <div class="w-1/4">
                         <div class="flex flex-col">
                             <p class="text-gray-800">Equipo visitante:</p>
-                            <select wire:model="suplentmatch_awayteam" class="inputcatalogues team-select">
+                            <select wire:model="substitudematch_awayteam" class="inputcatalogues team-select">
                                 <option value="">Selecciona un equipo</option>
                                 @foreach($teams as $team)
                                     <option value="{{ $team->id }}">
@@ -242,7 +245,7 @@
                             </select>
                             <div>
                                 <span class="text-red-500 text-xs italic">
-                                    @error('suplentmatch_awayteam')
+                                    @error('substitudematch_awayteam')
                                         {{$message}}
                                     @enderror
                                 </span>
@@ -252,10 +255,10 @@
                     <div class="w-1/4 flex justify-between">
                         <div class="flex flex-col">
                             <p class="text-gray-800">Fecha y hora del partido:</p>
-                            <x-input wire:model="suplentmatch_datetime" type="datetime-local" class="  !w-full"/>
+                            <x-input wire:model="substitudematch_datetime" type="datetime-local" class="  !w-full"/>
                             <div>
                                 <span class="text-red-500 text-xs italic">
-                                    @error('suplentmatch_datetime')
+                                    @error('substitudematch_datetime')
                                         {{$message}}
                                     @enderror
                                 </span>

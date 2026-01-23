@@ -53,7 +53,7 @@
                     </a>
                 @endif -->
 
-                <x-button-primary class="ms-4">
+                <x-button-primary class="ms-4 !p-2">
                     {{ __('Log in') }}
                 </x-button-primary>
             </div>

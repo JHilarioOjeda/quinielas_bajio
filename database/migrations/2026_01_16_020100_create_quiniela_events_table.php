@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('play_start')->nullable();
             $table->date('play_end')->nullable();
             $table->string('status', 20)->default('open'); //open | closed | finished
+            $table->boolean('apply_substitute')->default(true);
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();
         });
