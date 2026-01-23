@@ -11,7 +11,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/quiniela/edit', function () {
+    Route::get('/admin/quiniela', function () {
         return view('admin.quiniela-edit');
     })->name('quiniela.edit');
 

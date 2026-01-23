@@ -131,13 +131,26 @@
         </div>
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-            <h3 class="font-semibold text-xl text-primarycolor leading-tight mb-5">Partidos de la quiniela</h3>
+            <div class="flex items-center mb-5">
+                <h3 class="font-semibold text-xl text-primarycolor leading-tight">Partidos de la quiniela</h3>
+                <x-button-primary wire:click="addMatch" class="ml-auto !h-fit !py-2 !px-4 text-sm">
+                    + Agregar partido
+                </x-button-primary>
+            </div>
             @foreach($matches as $match)
                 <div class="w-full flex gap-6 md:flex-row mb-3">
                     <div class="w-1/4">
                         <div class="flex flex-col">
                             <p class="text-gray-800">Equipo local:</p>
-                            <x-input wire:model="matches.{{ $loop->index }}.home_team" type="text" class="  !w-full"/>
+                            <select wire:model="matches.{{ $loop->index }}.home_team" class="inputcatalogues team-select">
+                                <option value="">Selecciona un equipo</option>
+                                @foreach($teams as $team)
+                                    <option value="{{ $team->id }}">
+                                        {{ $team->name }}
+                                        <img src="{{ Storage::url($team->logo) }}" alt="">
+                                    </option>
+                                @endforeach
+                            </select>
                             <div>
                                 <span class="text-red-500 text-xs italic">
                                     @error('matches.' . $loop->index . '.home_team')
@@ -147,10 +160,19 @@
                             </div>
                         </div>
                     </div>
+                    <p class="my-auto font-bold">VS</p>
                     <div class="w-1/4">
                         <div class="flex flex-col">
                             <p class="text-gray-800">Equipo visitante:</p>
-                            <x-input wire:model="matches.{{ $loop->index }}.away_team" type="text" class="  !w-full"/>
+                            <select wire:model="matches.{{ $loop->index }}.away_team" class="inputcatalogues team-select">
+                                <option value="">Selecciona un equipo</option>
+                                @foreach($teams as $team)
+                                    <option value="{{ $team->id }}">
+                                        {{ $team->name }}
+                                        <img src="{{ Storage::url($team->logo) }}" alt="">
+                                    </option>
+                                @endforeach
+                            </select>
                             <div>
                                 <span class="text-red-500 text-xs italic">
                                     @error('matches.' . $loop->index . '.away_team')
@@ -160,7 +182,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="w-1/4">
+                    <div class="w-1/4 flex justify-between">
                         <div class="flex flex-col">
                             <p class="text-gray-800">Fecha y hora del partido:</p>
                             <x-input wire:model="matches.{{ $loop->index }}.match_datetime" type="datetime-local" class="  !w-full"/>
@@ -172,9 +194,76 @@
                                 </span>
                             </div>
                         </div>
+
+                        <x-buttondelete wire:click="removeMatch({{ $loop->index }})" class="w-fit mt-auto !h-fit !p-1" title="Eliminar partido">
+                        </x-buttondelete>
                     </div>
                 </div>
             @endforeach
+
+            <div class="mt-5">
+                <h4 class="font-semibold text-primarycolor leading-tight mb-2">
+                    Partido suplente (opcional)
+                </h4>
+                <div class="w-full flex gap-6 md:flex-row mb-3">
+                    <div class="w-1/4">
+                        <div class="flex flex-col">
+                            <p class="text-gray-800">Equipo local:</p>
+                            <select wire:model="suplentmatch_hometeam" class="inputcatalogues team-select">
+                                <option value="">Selecciona un equipo</option>
+                                @foreach($teams as $team)
+                                    <option value="{{ $team->id }}">
+                                        {{ $team->name }}
+                                        <img src="{{ Storage::url($team->logo) }}" alt="">
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div>
+                                <span class="text-red-500 text-xs italic">
+                                    @error('suplentmatch_hometeam')
+                                        {{$message}}
+                                    @enderror
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="my-auto font-bold">VS</p>
+                    <div class="w-1/4">
+                        <div class="flex flex-col">
+                            <p class="text-gray-800">Equipo visitante:</p>
+                            <select wire:model="suplentmatch_awayteam" class="inputcatalogues team-select">
+                                <option value="">Selecciona un equipo</option>
+                                @foreach($teams as $team)
+                                    <option value="{{ $team->id }}">
+                                        {{ $team->name }}
+                                        <img src="{{ Storage::url($team->logo) }}" alt="">
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div>
+                                <span class="text-red-500 text-xs italic">
+                                    @error('suplentmatch_awayteam')
+                                        {{$message}}
+                                    @enderror
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-1/4 flex justify-between">
+                        <div class="flex flex-col">
+                            <p class="text-gray-800">Fecha y hora del partido:</p>
+                            <x-input wire:model="suplentmatch_datetime" type="datetime-local" class="  !w-full"/>
+                            <div>
+                                <span class="text-red-500 text-xs italic">
+                                    @error('suplentmatch_datetime')
+                                        {{$message}}
+                                    @enderror
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     

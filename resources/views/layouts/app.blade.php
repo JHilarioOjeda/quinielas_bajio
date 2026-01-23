@@ -19,6 +19,9 @@
 
         <!-- Styles -->
         @livewireStyles
+
+        <!-- Slim Select (buscador en selects de equipos) -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.1/dist/slimselect.min.css" />
     </head>
     <body class="font-sans antialiased">
         <x-banner />
@@ -44,5 +47,34 @@
         @stack('modals')
 
         @livewireScripts
+
+        <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.1/dist/slimselect.min.js"></script>
+        <script>
+            function initTeamSelects() {
+                document.querySelectorAll('select.team-select').forEach((el) => {
+                    if (el.dataset.enhanced) return;
+
+                    new SlimSelect({
+                        select: el,
+                        settings: {
+                            showSearch: true,
+                            searchPlaceholder: 'Buscar equipo...',
+                        },
+                    });
+
+                    el.dataset.enhanced = '1';
+                });
+            }
+
+            // Ejecutar al cargar la página
+            initTeamSelects();
+
+            // Reaplicar después de actualizaciones de Livewire si está disponible
+            if (window.Livewire && Livewire.hook) {
+                Livewire.hook('message.processed', () => {
+                    initTeamSelects();
+                });
+            }
+        </script>
     </body>
 </html>
