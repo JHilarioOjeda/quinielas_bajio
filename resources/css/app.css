@@ -16,7 +16,7 @@
 
 /* Ajustes de tamaño para Slim Select en selects de equipos */
 select.team-select + .ss-main {
-    width: auto !important; /* que no ocupe siempre el 100% */
+    width: 100%; /* que no ocupe siempre el 100% */
     max-width: 100%;
 }
 
