@@ -14,6 +14,10 @@
     @apply border border-gray-300 focus:border-primarycolor focus:ring-primarycolor rounded-md shadow-sm px-2 py-1;
 }
 
+.checksquiniela{
+    @apply appearance-none size-7 rounded-lg border-2 border-gray-300 bg-white shadow-sm checked:bg-primarycolor checked:border-primarycolor focus:outline-none focus:ring-2 focus:ring-primarycolor focus:ring-offset-2 transition flex-shrink-0;
+}
+
 /* Ajustes de tamaño para Slim Select en selects de equipos */
 select.team-select + .ss-main {
     width: 100%; /* que no ocupe siempre el 100% */

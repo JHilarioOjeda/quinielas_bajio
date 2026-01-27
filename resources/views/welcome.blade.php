@@ -1,3 +1,8 @@
 <x-guest-layout>
-    Aqui va la quiniela dashboard
+    <livewire:general-quiniela/>
+    
+    @push('modals')
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @stack('js')
+    @endpush
 </x-guest-layout>
