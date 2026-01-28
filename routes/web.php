@@ -22,4 +22,12 @@ Route::middleware([
     Route::get('/admin/teams', function () {
         return view('admin.teams');
     })->name('admin-teams');
+
+    Route::get('/admin/matchesresults', function () {
+        return view('admin.matches-results');
+    })->name('admin-match-results');
+
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 });

@@ -12,8 +12,11 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-right">
+                    <x-nav-link href="{{ route('admin-match-results') }}" :active="request()->routeIs('admin-match-results')">
+                        Resultados de partidos
+                    </x-nav-link>
                     <x-nav-link href="{{ route('quiniela.edit') }}" :active="request()->routeIs('quiniela.edit')">
-                        Edición de Quiniela
+                        Edición de quiniela
                     </x-nav-link>
 
                     <x-nav-link href="{{ route('admin-teams') }}" :active="request()->routeIs('admin-teams')">

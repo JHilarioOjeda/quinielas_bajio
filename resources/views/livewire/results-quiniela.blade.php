@@ -273,7 +273,7 @@
                                                 <p class="font-semibold text-gray-900 truncate">{{ $ticket->player_name }}</p>
                                                 <p class="text-[10px] md:text-[11px] text-gray-600">Folio: <span class="font-mono">{{ $ticket->folio }}</span></p>
                                             </div>
-                                            <span class="text-[10px] md:text-xs text-gray-500 font-semibold">0 ✖</span>
+                                            {{-- <span class="text-[10px] md:text-xs text-gray-500 font-semibold">0 </span> --}}
                                         </li>
                                     @endforeach
                                 </ul>
