@@ -6,6 +6,27 @@
     display: none;
 }
 
+.loader {
+    margin: auto;
+    border: 20px solid #eef1f5;
+    border-radius: 50%;
+    border-top: 20px dotted #eef1f5;
+    width: 200px;
+    height: 200px;
+    -webkit-animation: spinner 2s linear infinite;
+    animation: spinner 2s linear infinite;
+  }
+
+  @-webkit-keyframes spinner {
+    0%{-webkit-transform: rotate(0deg);}
+    100%{-webkit-transform: rotate(360deg);}
+  }
+
+  @keyframes spinner {
+    0%{transform: rotate(0deg);}
+    100%{transform: rotate(360deg);}
+  }
+
 .closebttn{
     @apply bg-neutral-300 hover:bg-neutral-400 p-1 rounded-full w-fit ml-auto my-auto;
 }
@@ -15,7 +36,7 @@
 }
 
 .checksquiniela{
-    @apply appearance-none size-7 rounded-lg border-2 border-gray-300 bg-white shadow-sm checked:bg-primarycolor checked:border-primarycolor focus:outline-none focus:ring-2 focus:ring-primarycolor focus:ring-offset-2 transition flex-shrink-0;
+    @apply appearance-none size-7 rounded-lg border-2 border-gray-400 bg-white shadow-sm checked:bg-primarycolor checked:border-primarycolor focus:outline-none focus:ring-2 focus:ring-primarycolor focus:ring-offset-2 transition flex-shrink-0;
 }
 
 /* Ajustes de tamaño para Slim Select en selects de equipos */
