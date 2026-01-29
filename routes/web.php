@@ -27,6 +27,10 @@ Route::middleware([
         return view('admin.matches-results');
     })->name('admin-match-results');
 
+    Route::get('/admin/tickets', function () {
+        return view('admin.tickets');
+    })->name('admin-tickets');
+
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');

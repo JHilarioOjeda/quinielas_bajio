@@ -1,6 +1,6 @@
 <div>
 
-    <x-loading functionsList="addMatch, removeMatch, saveGeneralDataQuiniela, saveMatchesQuiniela" />
+    <x-loading functionsList="addMatch, removeMatch, saveGeneralDataQuiniela, saveMatchesQuiniela, finalizeQuiniela" />
 
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -113,10 +113,12 @@
                     <div class="flex flex-col">
                         <p class="text-gray-800">Estatus de quiniela:</p>
                         <p class="text-xs italic text-primarycolor">Cambia el estatus de la quiniela para controlar su disponibilidad.</p>
+                        <!-- <p class="text-xs italic text-red-600 mt-1">Al finalizar la quiniela se eliminarán todos los tickets registrados.</p> -->
                         <!-- <x-input wire:model="status" type="text" class="  !w-full"/> -->
                         <select name="status" id="status" wire:model="status" class="inputcatalogues !w-full">
                             <option value="open">Abierta</option>
-                            <option value="finished">Finalizada</option>
+                            <option value="closed">Cerrada</option>
+                            <option value="finished" disabled>Finalizada</option>
                         </select>
                         <div>
                             <span class="text-red-500 text-xs italic">
@@ -135,6 +137,12 @@
 
                     Guardar
                 </x-button-primary>
+
+                @if($status === 'closed')
+                <x-buttondesact onclick="confirmFinishQuiniela()" class="w-full sm:w-fit sm:ml-2 !h-fit !p-1 sm:mt-0 gap-1">
+                    Finalizar quiniela
+                </x-buttondesact>
+                @endif
             </div>
         </div>
 
@@ -326,3 +334,22 @@
     </div>
     
 </div>
+
+<script>
+    function confirmFinishQuiniela(){
+        Swal.fire({
+            title: '¿Seguro que deseas finalizar la quiniela?',
+            text: 'Se archivaran los tickets actuales y los resultados de los partidos.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#408331',
+            cancelButtonColor: '#e02424',
+            confirmButtonText: 'Sí, finalizar y archivar tickets',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (result.isConfirmed) {
+              Livewire.dispatch('finishQuiniela');
+            }
+        })
+    }
+</script>

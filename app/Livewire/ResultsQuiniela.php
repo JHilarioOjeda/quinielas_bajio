@@ -22,10 +22,13 @@ class ResultsQuiniela extends Component
         $zeroHitsTickets = collect();
 
         if ($quiniela) {
-            $tickets = Ticket::with([
-                'ticketMatches.matchGame',
-                'ticketMatches.predictions',
-            ])->where('quiniela_event_id', $quiniela->id)->get();
+                        $tickets = Ticket::with([
+                                'ticketMatches.matchGame',
+                                'ticketMatches.predictions',
+                        ])->where('quiniela_event_id', $quiniela->id)
+                            ->where('payment_status', 'pagado')
+                            ->where('active', true)
+                            ->get();
 
             foreach ($tickets as $ticket) {
                 $ticket->hits = $this->calculateTicketHits($ticket);

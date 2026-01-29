@@ -63,19 +63,33 @@
                     Reglamento
                 </x-button-primary>
 
-                <!-- Botón WhatsApp -->
-                <a
-                    href="https://wa.me/{{ $whatsNumber }}?text={{ $whatsText }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm font-semibold shadow"
-                >
+                <button wire:click="toggleWhatsModal" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm md:text-base font-semibold shadow">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
                         <path d="M12 2C6.486 2 2 6.201 2 11.294c0 1.747.478 3.393 1.385 4.86L2 22l6.05-1.93C9.43 20.54 10.705 20.79 12 20.79 17.514 20.79 22 16.586 22 11.494 22 6.401 17.514 2 12 2Zm0 2c4.087 0 7.4 3.127 7.4 7.494 0 4.368-3.313 7.495-7.4 7.495-1.13 0-2.246-.235-3.26-.692l-.233-.106-3.57 1.139 1.16-3.18-.151-.244C4.365 15.19 4 13.98 4 11.294 4 7.127 7.223 4 12 4Zm-3.09 3.75a.7.7 0 0 0-.52.246c-.27.314-.71.868-.77 1.47-.09.924.28 2.042 1.28 3.222 1 1.18 2.52 2.542 4.83 3.25.83.26 1.48.083 2-.27.42-.287.69-.74.78-1.07.08-.33.08-.61.05-.67a.35.35 0 0 0-.19-.22l-1.79-.83a.5.5 0 0 0-.49.04l-.71.54c-.08.06-.23.09-.36.05-.38-.12-1.64-.66-2.34-1.77-.18-.28-.22-.43-.16-.57l.52-.7a.47.47 0 0 0 .06-.47l-.78-1.83a.44.44 0 0 0-.33-.27 1.86 1.86 0 0 0-.37-.03Z" />
                     </svg>
-                </a>
+                </button>
             </div>
 
+            @if($quiniela->status !== 'open')
+                @if($quiniela->status === 'closed')
+                    <div class="bg-white col-span-12 md:mt-6 p-5 md:p-4 flex flex-col items-center justify-center rounded-lg min-h-[75vh]">
+                        <p class="text-2xl font-bold text-yellow-600 uppercase">
+                            Ventas cerradas
+                        </p>
+                        <p class="text-gray-700 text-center my-6">Da clic en el siguiente botón para ir a los resultados.</p>
+                        <x-button-primary type="button" class="px-3 py-2 text-sm md:text-base flex items-center w-fit mx-auto" onclick="window.location='{{ route('quiniela.results') }}'">
+                                Ver resultados
+                        </x-button-primary>
+                    </div>
+                @else
+                    <div class="bg-white col-span-12 md:mt-6 p-5 md:p-4 flex flex-col items-center justify-center rounded-lg min-h-[75vh]">
+                        <p class="text-2xl font-bold text-yellow-600 uppercase">
+                            Quiniela finalizada
+                        </p>
+                        <p class="text-gray-700 text-center my-6">Gracias por tu preferencia. Espera la nueva quiniela.</p>
+                    </div>
+                @endif
+            @else
             <div class="bg-white w-full md:mt-6 p-1 md:p-4 rounded-lg col-span-12">
 
                 @php
@@ -291,6 +305,7 @@
                     </div>
                 @endif
             </div>
+            @endif
 
         </div>
         
@@ -369,6 +384,33 @@
                 <x-button-primary type="button" class="px-3 py-1 text-xs md:text-sm" wire:click="toggleRulesModal">
                     Entendido
                 </x-button-primary>
+            </div>
+        </div>
+    </div>
+@endif
+
+@if($showWhatsModal)
+    <div class="fixed inset-0 z-40 bg-black bg-opacity-50 flex items-center justify-center px-3" wire:click.self="toggleWhatsModal">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-4 md:p-6 text-sm md:text-base">
+            <div class="flex items-start justify-between gap-4 mb-3">
+                <h2 class="text-base md:text-lg font-bold text-emerald-500">Contacto de WhatsApp</h2>
+                <button type="button" class="text-gray-400 hover:text-gray-600" wire:click="toggleWhatsModal">
+                    ✕
+                </button>
+            </div>
+            <div class="space-y-3 text-sm md:text-base text-gray-800 leading-relaxed flex flex-col">
+                <p>Tienes alguna duda o quieres enviar tu pago por WhatsApp, escribe al siguiente número:</p>
+                <a
+                    href="https://wa.me/{{ $whatsNumber }}?text={{ $whatsText }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm md:text-base font-semibold shadow mx-auto"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
+                        <path d="M12 2C6.486 2 2 6.201 2 11.294c0 1.747.478 3.393 1.385 4.86L2 22l6.05-1.93C9.43 20.54 10.705 20.79 12 20.79 17.514 20.79 22 16.586 22 11.494 22 6.401 17.514 2 12 2Zm0 2c4.087 0 7.4 3.127 7.4 7.494 0 4.368-3.313 7.495-7.4 7.495-1.13 0-2.246-.235-3.26-.692l-.233-.106-3.57 1.139 1.16-3.18-.151-.244C4.365 15.19 4 13.98 4 11.294 4 7.127 7.223 4 12 4Zm-3.09 3.75a.7.7 0 0 0-.52.246c-.27.314-.71.868-.77 1.47-.09.924.28 2.042 1.28 3.222 1 1.18 2.52 2.542 4.83 3.25.83.26 1.48.083 2-.27.42-.287.69-.74.78-1.07.08-.33.08-.61.05-.67a.35.35 0 0 0-.19-.22l-1.79-.83a.5.5 0 0 0-.49.04l-.71.54c-.08.06-.23.09-.36.05-.38-.12-1.64-.66-2.34-1.77-.18-.28-.22-.43-.16-.57l.52-.7a.47.47 0 0 0 .06-.47l-.78-1.83a.44.44 0 0 0-.33-.27 1.86 1.86 0 0 0-.37-.03Z" />
+                    </svg>
+                    WhatsApp
+                </a>
             </div>
         </div>
     </div>

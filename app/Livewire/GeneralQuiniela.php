@@ -42,8 +42,9 @@ class GeneralQuiniela extends Component
     public ?string $last_ticket_folio = null;
     public ?float $last_ticket_total = null;
 
-    /** Controla la visibilidad del modal de reglamento */
+    /** Controla la visibilidad del modal de reglamento y WhatsApp */
     public bool $showRulesModal = false;
+    public bool $showWhatsModal = false;
 
     public $whatsNumber, $whatsText;
 
@@ -60,7 +61,7 @@ class GeneralQuiniela extends Component
         ])->first();
 
         [$totalCombinations, $totalPrice] = $this->calculateTotals($quiniela);
-
+        
         return view('livewire.general-quiniela', [
             'quiniela' => $quiniela,
             'totalCombinations' => $totalCombinations,
@@ -133,6 +134,11 @@ class GeneralQuiniela extends Component
     public function toggleRulesModal(): void
     {
         $this->showRulesModal = ! $this->showRulesModal;
+    }
+
+    public function toggleWhatsModal(): void
+    {
+        $this->showWhatsModal = ! $this->showWhatsModal;
     }
 
     /**
@@ -217,6 +223,7 @@ class GeneralQuiniela extends Component
                 'player_name' => $this->player_name,
                 'amount_paid' => $totalPrice,
                 'payment_status' => 'pendiente',
+                'active' => true,
             ]);
 
             foreach ($eventMatches as $eventMatch) {

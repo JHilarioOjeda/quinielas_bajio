@@ -15,6 +15,7 @@ class Ticket extends Model
         'player_name',
         'amount_paid',
         'payment_status',
+        'active',
     ];
 
     public function quinielaEvent()

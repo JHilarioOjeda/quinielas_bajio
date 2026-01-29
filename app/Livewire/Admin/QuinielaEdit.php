@@ -52,6 +52,10 @@ class QuinielaEdit extends Component
         'status' => 'estado',
     ];
 
+    protected $listeners = [
+        'finishQuiniela' => 'finalizeQuiniela',
+    ];
+
     public function mount(){
         $this->quinielaEvent = QuinielaEvent::first();
         if ($this->quinielaEvent) {
@@ -208,6 +212,52 @@ class QuinielaEdit extends Component
                     ->show();
         }
     }   
+
+    public function finalizeQuiniela()
+    {
+        if (! $this->quinielaEvent) {
+            LivewireAlert::title('Error')
+                ->text('No hay una quiniela activa para finalizar.')
+                ->error()
+                ->show();
+            return;
+        }
+
+        try {
+            DB::transaction(function () {
+                $this->quinielaEvent->status = 'finished';
+                $this->quinielaEvent->save();
+
+                $this->quinielaEvent->tickets()->update(['active' => false]);
+
+                $eventMatches = $this->quinielaEvent->eventMatches()->with('matchGame')->get();
+
+                foreach ($eventMatches as $eventMatch) {
+                    if ($eventMatch->matchGame) {
+                        $eventMatch->matchGame->update([
+                            'home_score' => null,
+                            'away_score' => null,
+                            'status' => 'pending',
+                        ]);
+                    }
+                }
+            });
+
+            $this->status = 'finished';
+
+            LivewireAlert::title('Éxito')
+                ->text('La quiniela se finalizó, los tickets fueron archivados y los resultados de los partidos se limpiaron.')
+                ->success()
+                ->show();
+        } catch (Throwable $e) {
+            Log::error('Error al finalizar la quiniela: ' . $e->getMessage());
+
+            LivewireAlert::title('Error')
+                ->text('Ocurrió un error al finalizar la quiniela. Por favor, inténtalo de nuevo.')
+                ->error()
+                ->show();
+        }
+    }
 
     public function saveMatchesQuiniela()
     {
