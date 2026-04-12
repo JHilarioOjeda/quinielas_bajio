@@ -17,21 +17,24 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-primarycolor text-white">
                                 <tr>
-                                    <th class="px-3 py-2 text-left">Folio</th>
-                                    <th class="px-3 py-2 text-left">Jugador</th>
-                                    <th class="px-3 py-2 text-left">Monto</th>
-                                    <th class="px-3 py-2 text-left">Estatus de pago</th>
-                                    <th class="px-3 py-2 text-left">Fecha</th>
-                                    <th class="px-3 py-2 text-center">Acciones</th>
+                                    <th class="px-3 py-1 text-sm text-center">Folio</th>
+                                    <th class="px-3 py-1 text-sm text-left">Jugador</th>
+                                    <th class="px-3 py-1 text-sm text-left">Monto</th>
+                                    <th class="px-3 py-1 text-sm text-center">Estatus de pago</th>
+                                    <th class="px-3 py-1 text-sm text-left">Fecha</th>
+                                    <th class="px-3 py-1 text-sm text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($tickets as $ticket)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="border px-3 py-2">{{ $ticket->folio }}</td>
-                                        <td class="border px-3 py-2">{{ $ticket->player_name }}</td>
-                                        <td class="border px-3 py-2">${{ number_format($ticket->amount_paid, 2) }}</td>
-                                        <td class="border px-3 py-2">
+                                    <tr class="hover:bg-gray-50 text-sm">
+                                        <td class="border px-3 py-1 text-center font-semibold">{{ $ticket->folio }}</td>
+                                        <td class="border px-3 py-1">
+                                            <p class="font-medium">{{ $ticket->player_name }}</p>
+                                            <p class="text-xs font-medium">{{ $ticket->phone_number ?? 'N/A' }}</p>
+                                        </td>
+                                        <td class="border px-3 py-1 font-medium">${{ number_format($ticket->amount_paid, 2) }}</td>
+                                        <td class="border px-3 py-1 text-center">
                                             @if($ticket->payment_status === 'pagado')
                                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
                                                     Pagado
@@ -42,14 +45,14 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="border px-3 py-2">{{ optional($ticket->created_at)->format('d/m/Y H:i') }}</td>
-                                        <td class="border px-3 py-2 text-center">
+                                        <td class="border px-3 py-1">{{ optional($ticket->created_at)->format('d/m/Y H:i') }}</td>
+                                        <td class="border px-3 py-1 text-center">
                                             <div class="flex flex-col gap-1 items-center justify-center sm:flex-row sm:gap-2">
                                                 <button
                                                     wire:click="togglePaymentStatus({{ $ticket->id }})"
-                                                    class="inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold text-white {{ $ticket->payment_status === 'pagado' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700' }}">
+                                                    class="inline-flex items-center px-3 py-1 uppercase rounded-md text-xs font-semibold text-white {{ $ticket->payment_status === 'pagado' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700' }}">
                                                     @if($ticket->payment_status === 'pagado')
-                                                        Marcar como pendiente
+                                                        Marcar pendiente
                                                     @else
                                                         Marcar como pagado
                                                     @endif
@@ -57,7 +60,7 @@
 
                                                 <button
                                                     wire:click="toggleDetails({{ $ticket->id }})"
-                                                    class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border border-primarycolor text-primarycolor hover:bg-primarycolor hover:text-white">
+                                                    class="inline-flex items-center px-3 py-1 uppercase rounded-md text-xs font-semibold border border-primarycolor text-primarycolor hover:bg-primarycolor hover:text-white">
                                                     @if(in_array($ticket->id, $expandedTickets ?? []))
                                                         Ocultar jugadas
                                                     @else

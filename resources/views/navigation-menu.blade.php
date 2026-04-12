@@ -92,6 +92,12 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link href="{{ route('admin-tickets') }}" :active="request()->routeIs('admin-tickets')">
+                {{ __('Quinielas de usuarios') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('admin-match-results') }}" :active="request()->routeIs('admin-match-results')">
+                {{ __('Resultados de partidos') }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('quiniela.edit') }}" :active="request()->routeIs('quiniela.edit')">
                 {{ __('Edición de Quiniela') }}
             </x-responsive-nav-link>
@@ -99,6 +105,7 @@
             <x-responsive-nav-link href="{{ route('admin-teams') }}" :active="request()->routeIs('admin-teams')">
                 {{ __('Equipos') }}
             </x-responsive-nav-link>
+
         </div>
 
         <!-- Responsive Settings Options -->

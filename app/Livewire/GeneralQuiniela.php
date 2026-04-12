@@ -38,6 +38,9 @@ class GeneralQuiniela extends Component
     /** Nombre del jugador que llena la quiniela */
     public ?string $player_name = null;
 
+    /** Teléfono del jugador */
+    public ?string $phone_number = null;
+
     /** Datos del último ticket guardado para retroalimentación al usuario */
     public ?string $last_ticket_folio = null;
     public ?float $last_ticket_total = null;
@@ -156,11 +159,13 @@ class GeneralQuiniela extends Component
             return;
         }
 
-        // Validar nombre del jugador
+        // Validar nombre y teléfono del jugador
         $this->validate([
-            'player_name' => 'required|string|max:100',
+            'player_name'  => 'required|string|max:100',
+            'phone_number' => 'required|string|max:20',
         ], [], [
-            'player_name' => 'nombre del jugador',
+            'player_name'  => 'nombre del jugador',
+            'phone_number' => 'número telefónico',
         ]);
 
         // Validar que todos los partidos tengan al menos una selección
@@ -219,11 +224,12 @@ class GeneralQuiniela extends Component
 
             $ticket = Ticket::create([
                 'quiniela_event_id' => $quiniela->id,
-                'folio' => $this->generateFolio($quiniela),
-                'player_name' => $this->player_name,
-                'amount_paid' => $totalPrice,
-                'payment_status' => 'pendiente',
-                'active' => true,
+                'folio'            => $this->generateFolio($quiniela),
+                'player_name'      => $this->player_name,
+                'phone_number'     => $this->phone_number,
+                'amount_paid'      => $totalPrice,
+                'payment_status'   => 'pendiente',
+                'active'           => true,
             ]);
 
             foreach ($eventMatches as $eventMatch) {
@@ -264,6 +270,7 @@ class GeneralQuiniela extends Component
             // Limpiar selección y nombre después de guardar
             $this->picks = [];
             //$this->player_name = null;
+            //$this->phone_number = null;
 
             LivewireAlert::title('Éxito')
                 ->text('Tu quiniela se guardó correctamente. Folio: ' . $ticket->folio)

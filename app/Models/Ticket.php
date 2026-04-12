@@ -13,6 +13,7 @@ class Ticket extends Model
         'quiniela_event_id',
         'folio',
         'player_name',
+        'phone_number',
         'amount_paid',
         'payment_status',
         'active',

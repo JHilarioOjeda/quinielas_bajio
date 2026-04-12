@@ -1,5 +1,5 @@
 <div>
-    <div class="w-full bg-primarycolor shadow-sm p-2 md:py-4">
+    <div class="w-full h-[100vh] bg-primarycolor shadow-sm p-2 md:py-4">
         <div class="bg-white rounded-xl border border-primaryhcolor px-2 py-1 grid grid-cols-12 gap-1 md:gap-6 items-center max-w-4xl mx-auto md:px-4 md:py-3">
 
             <!-- Logo + Precio -->
@@ -76,7 +76,7 @@
                         <p class="text-2xl font-bold text-yellow-600 uppercase">
                             Ventas cerradas
                         </p>
-                        <p class="text-gray-700 text-center my-6">Da clic en el siguiente botón para ir a los resultados.</p>
+                        <p class="text-gray-700 text-center my-6">Da clic en el siguiente botón para ir a los resultados en tiempo real y ver la lista final.</p>
                         <x-button-primary type="button" class="px-3 py-2 text-sm md:text-base flex items-center w-fit mx-auto" onclick="window.location='{{ route('quiniela.results') }}'">
                                 Ver resultados
                         </x-button-primary>
@@ -259,7 +259,7 @@
                 <div class="mt-2 w-full flex flex-col md:flex-row md:items-end gap-3">
                     <div class="flex-1">
                         <label class="block text-[11px] md:text-xs font-semibold text-gray-700 mb-1">
-                            Nombre del jugador
+                            Nombre del jugador y número de teléfono
                         </label>
                         <input
                             type="text"
@@ -268,6 +268,19 @@
                             placeholder="Escribe tu nombre completo"
                         />
                         @error('player_name')
+                            <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="flex-1">
+                        <input
+                            type="tel"
+                            wire:model.live="phone_number"
+                            class="w-full border border-gray-300 rounded-lg px-2 py-1 text-xs md:text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                            placeholder="Ej. 4441234567"
+                            maxlength="20"
+                        />
+                        @error('phone_number')
                             <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p>
                         @enderror
                     </div>

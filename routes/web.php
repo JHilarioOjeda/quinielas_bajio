@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ListaFinalController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -9,6 +10,9 @@ Route::get('/', function () {
 Route::get('/resultados', function () {
     return view('results');
 })->name('quiniela.results');
+
+Route::get('/admin/lista-final', [ListaFinalController::class, 'show'])
+        ->name('admin.lista-final');
 
 Route::middleware([
     'auth:sanctum',
