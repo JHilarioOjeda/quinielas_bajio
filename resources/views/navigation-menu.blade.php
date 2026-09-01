@@ -104,6 +104,7 @@
 
             <x-responsive-nav-link href="{{ route('admin-teams') }}" :active="request()->routeIs('admin-teams')">
                 {{ __('Equipos') }}
+                
             </x-responsive-nav-link>
 
         </div>
