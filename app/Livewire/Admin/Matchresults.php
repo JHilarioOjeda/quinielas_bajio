@@ -31,8 +31,8 @@ class Matchresults extends Component
 
     public function mount(): void
     {
-        $this->quiniela = QuinielaEvent::first();
-        $this->selectedEventId = $this->quiniela->id;
+        $this->quiniela = QuinielaEvent::current()->first();
+        $this->selectedEventId = $this->quiniela?->id;
         $this->loadEventMatches();
     }
 

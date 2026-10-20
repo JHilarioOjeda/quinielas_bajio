@@ -31,8 +31,9 @@
 
             <!-- Page Heading -->
             @if (isset($header))
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="bg-primarycolor border-b-4 border-secondarycolor">
+                    <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-white/70 mb-1">Panel de administración</p>
                         {{ $header }}
                     </div>
                 </header>

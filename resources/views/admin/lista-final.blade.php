@@ -61,6 +61,12 @@
 
 <!-- Barra de acciones (sólo pantalla) -->
 <div class="no-print flex items-center gap-3 max-w-6xl mx-auto mb-3 px-1">
+    @if(isset($historialBack))
+        <a href="{{ $historialBack }}"
+           class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold px-4 py-2 rounded-lg shadow transition">
+            &larr; Volver al historial
+        </a>
+    @endif
     <button
         onclick="window.print()"
         class="inline-flex items-center gap-2 bg-secondarycolor hover:bg-secondaryhovercolor text-white text-xs font-semibold px-4 py-2 rounded-lg shadow transition">

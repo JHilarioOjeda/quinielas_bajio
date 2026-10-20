@@ -4,27 +4,31 @@
             <x-application-logo class="h-36" />
         </x-slot>
 
+        <h1 class="text-xl font-semibold text-gray-900 mb-5 text-center">
+            Iniciar sesión
+        </h1>
+
         <x-validation-errors class="mb-4" />
 
         @session('status')
-            <div class="mb-4 font-medium text-sm text-green-600">
+            <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-base font-medium text-green-700">
                 {{ $value }}
             </div>
         @endsession
 
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login') }}" class="space-y-5">
             @csrf
 
             <div>
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+                <x-label for="email" value="{{ __('Correo electrónico') }}" />
+                <x-input id="email" class="block w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             </div>
 
-            <div class="mt-4" x-data="{ show: false }">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <div class="relative mt-1">
-                    <x-input id="password" class="block w-full pe-10" type="password" x-bind:type="show ? 'text' : 'password'" name="password" required autocomplete="current-password"/>
-                    <button type="button" class="absolute inset-y-0 end-0 flex items-center px-3 text-sm text-gray-500 hover:text-gray-700 focus:outline-none" @click="show = ! show">
+            <div x-data="{ show: false }">
+                <x-label for="password" value="{{ __('Contraseña') }}" />
+                <div class="relative">
+                    <x-input id="password" class="block w-full pe-12" type="password" x-bind:type="show ? 'text' : 'password'" name="password" required autocomplete="current-password"/>
+                    <button type="button" aria-label="Mostrar contraseña" class="absolute inset-y-0 end-0 flex items-center px-3 text-gray-500 hover:text-gray-700 focus:outline-none" @click="show = ! show">
                         <svg x-show="! show" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                             <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
                             <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
@@ -39,24 +43,9 @@
                 </div>
             </div>
 
-            <!-- <div class="block mt-4">
-                <label for="remember_me" class="flex items-center">
-                    <x-checkbox id="remember_me" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-                </label>
-            </div> -->
-
-            <div class="flex items-center justify-end mt-4">
-                <!-- @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primarycolor" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
-                    </a>
-                @endif -->
-
-                <x-button-primary class="ms-4 !p-2">
-                    {{ __('Log in') }}
-                </x-button-primary>
-            </div>
+            <x-button-primary class="w-full justify-center text-base">
+                {{ __('Iniciar sesión') }}
+            </x-button-primary>
         </form>
     </x-authentication-card>
 </x-guest-layout>

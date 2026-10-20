@@ -26,7 +26,11 @@ class FortifyServiceProvider extends ServiceProvider
             return new class implements LoginResponse {
                 public function toResponse($request)
                 {
-                    return redirect()->intended(route('quiniela.edit'));
+                    $destination = $request->user()?->isAdmin()
+                        ? route('quiniela.edit')
+                        : route('dashboard');
+
+                    return redirect()->intended($destination);
                 }
             };
         });

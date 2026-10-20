@@ -38,9 +38,6 @@ class GeneralQuiniela extends Component
     /** Nombre del jugador que llena la quiniela */
     public ?string $player_name = null;
 
-    /** Teléfono del jugador */
-    public ?string $phone_number = null;
-
     /** Datos del último ticket guardado para retroalimentación al usuario */
     public ?string $last_ticket_folio = null;
     public ?float $last_ticket_total = null;
@@ -51,6 +48,9 @@ class GeneralQuiniela extends Component
 
     public $whatsNumber, $whatsText;
 
+    /** Mensaje de WhatsApp prellenado con el resumen del último ticket guardado */
+    public ?string $ticketWhatsText = null;
+
     public function mount()
     {
         $this->whatsNumber = config('services.whatsapp.number');
@@ -58,7 +58,7 @@ class GeneralQuiniela extends Component
     }
 
     public function render(){
-        $quiniela = QuinielaEvent::with([
+        $quiniela = QuinielaEvent::current()->with([
             'eventMatches.matchGame.homeTeam',
             'eventMatches.matchGame.awayTeam',
         ])->first();
@@ -149,7 +149,9 @@ class GeneralQuiniela extends Component
      */
     public function saveTicket(): void
     {
-        $quiniela = QuinielaEvent::with('eventMatches')->first();
+        $quiniela = QuinielaEvent::current()
+            ->with(['eventMatches.matchGame.homeTeam', 'eventMatches.matchGame.awayTeam'])
+            ->first();
 
         if (! $quiniela) {
             LivewireAlert::title('Error')
@@ -159,13 +161,11 @@ class GeneralQuiniela extends Component
             return;
         }
 
-        // Validar nombre y teléfono del jugador
+        // Validar nombre del jugador
         $this->validate([
-            'player_name'  => 'required|string|max:100',
-            'phone_number' => 'required|string|max:20',
+            'player_name' => 'required|string|max:100',
         ], [], [
-            'player_name'  => 'nombre del jugador',
-            'phone_number' => 'número telefónico',
+            'player_name' => 'nombre del jugador',
         ]);
 
         // Validar que todos los partidos tengan al menos una selección
@@ -226,9 +226,8 @@ class GeneralQuiniela extends Component
                 'quiniela_event_id' => $quiniela->id,
                 'folio'            => $this->generateFolio($quiniela),
                 'player_name'      => $this->player_name,
-                'phone_number'     => $this->phone_number,
                 'amount_paid'      => $totalPrice,
-                'payment_status'   => 'pendiente',
+                'payment_status'   => Ticket::PAYMENT_PENDING,
                 'active'           => true,
             ]);
 
@@ -266,11 +265,13 @@ class GeneralQuiniela extends Component
             // Guardar información del ticket para mostrarla al usuario
             $this->last_ticket_folio = $ticket->folio;
             $this->last_ticket_total = $totalPrice;
+            $this->ticketWhatsText = urlencode(
+                $this->buildTicketWhatsMessage($quiniela, $ticket, $eventMatches, $totalCombinations, $totalPrice)
+            );
 
             // Limpiar selección y nombre después de guardar
             $this->picks = [];
             //$this->player_name = null;
-            //$this->phone_number = null;
 
             LivewireAlert::title('Éxito')
                 ->text('Tu quiniela se guardó correctamente. Folio: ' . $ticket->folio)
@@ -293,5 +294,52 @@ class GeneralQuiniela extends Component
     protected function generateFolio(QuinielaEvent $quiniela): string
     {
         return 'Q' . $quiniela->id . '-' . strtoupper(Str::random(6));
+    }
+
+    /**
+     * Arma el mensaje de WhatsApp con el resumen del ticket recién guardado,
+     * para que el jugador lo envíe al dueño con un solo toque.
+     */
+    protected function buildTicketWhatsMessage(
+        QuinielaEvent $quiniela,
+        Ticket $ticket,
+        iterable $eventMatches,
+        int $totalCombinations,
+        float $totalPrice
+    ): string {
+        $labels = ['H' => 'Local', 'D' => 'Empate', 'A' => 'Visitante'];
+
+        $lines = [];
+        $lines[] = 'Mi quiniela: ' . ($quiniela->title ?? '');
+        $lines[] = 'Folio: ' . $ticket->folio;
+        $lines[] = 'Jugador: ' . $ticket->player_name;
+        $lines[] = '';
+
+        foreach ($eventMatches as $eventMatch) {
+            $matchGame = $eventMatch->matchGame;
+            $homeTeam = $matchGame?->homeTeam?->name ?? 'Local';
+            $awayTeam = $matchGame?->awayTeam?->name ?? 'Visitante';
+
+            $selections = $this->picks[$eventMatch->id] ?? [];
+            $picked = [];
+            foreach ($labels as $key => $label) {
+                $selected = is_array($selections)
+                    ? ($selections[$key] ?? false)
+                    : ($selections === $key);
+
+                if ($selected) {
+                    $picked[] = $label;
+                }
+            }
+
+            $suffix = $eventMatch->is_substitute ? ' (Suplente)' : '';
+            $lines[] = "{$homeTeam} vs {$awayTeam}{$suffix}: " . implode(' / ', $picked);
+        }
+
+        $lines[] = '';
+        $lines[] = 'Jugadas: ' . $totalCombinations;
+        $lines[] = 'Total a pagar: $' . number_format($totalPrice, 2);
+
+        return implode("\n", $lines);
     }
 }

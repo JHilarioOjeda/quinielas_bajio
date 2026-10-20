@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HistorialController;
 use App\Http\Controllers\ListaFinalController;
 
 Route::get('/', function () {
@@ -19,23 +20,31 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/admin/quiniela', function () {
-        return view('admin.quiniela-edit');
-    })->name('quiniela.edit');
-
-    Route::get('/admin/teams', function () {
-        return view('admin.teams');
-    })->name('admin-teams');
-
-    Route::get('/admin/matchesresults', function () {
-        return view('admin.matches-results');
-    })->name('admin-match-results');
-
-    Route::get('/admin/tickets', function () {
-        return view('admin.tickets');
-    })->name('admin-tickets');
-
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::middleware('admin')->group(function () {
+        Route::get('/admin/quiniela', function () {
+            return view('admin.quiniela-edit');
+        })->name('quiniela.edit');
+
+        Route::get('/admin/teams', function () {
+            return view('admin.teams');
+        })->name('admin-teams');
+
+        Route::get('/admin/matchesresults', function () {
+            return view('admin.matches-results');
+        })->name('admin-match-results');
+
+        Route::get('/admin/tickets', function () {
+            return view('admin.tickets');
+        })->name('admin-tickets');
+
+        Route::get('/admin/historial', [HistorialController::class, 'index'])
+            ->name('admin.historial.index');
+
+        Route::get('/admin/historial/{quiniela}', [HistorialController::class, 'show'])
+            ->name('admin.historial.show');
+    });
 });

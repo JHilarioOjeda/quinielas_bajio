@@ -32,11 +32,11 @@
 }
 
 .inputcatalogues{
-    @apply border border-gray-300 focus:border-primarycolor focus:ring-primarycolor rounded-md shadow-sm px-2 py-1;
+    @apply border border-gray-300 focus:border-primarycolor focus:ring-primarycolor rounded-lg shadow-sm px-3 py-2.5 text-base min-h-11;
 }
 
 .checksquiniela{
-    @apply appearance-none size-7 rounded-lg border-2 border-gray-400 bg-white shadow-sm checked:bg-primarycolor checked:border-primarycolor focus:outline-none focus:ring-2 focus:ring-primarycolor focus:ring-offset-2 transition flex-shrink-0;
+    @apply appearance-none size-8 rounded-lg border-2 border-gray-400 bg-white shadow-sm checked:bg-primarycolor checked:border-primarycolor focus:outline-none focus:ring-2 focus:ring-primarycolor focus:ring-offset-2 transition flex-shrink-0;
 }
 
 /* Ajustes de tamaño para Slim Select en selects de equipos */

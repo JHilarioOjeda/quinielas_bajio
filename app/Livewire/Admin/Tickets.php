@@ -42,7 +42,7 @@ class Tickets extends Component
 
     public function setPaymentStatus(int $ticketId, string $status): void
     {
-        if (! in_array($status, ['pendiente', 'pagado'], true)) {
+        if (! in_array($status, Ticket::PAYMENT_STATUSES, true)) {
             return;
         }
 
@@ -64,7 +64,7 @@ class Tickets extends Component
             return;
         }
 
-        $ticket->payment_status = $ticket->payment_status === 'pagado' ? 'pendiente' : 'pagado';
+        $ticket->payment_status = $ticket->isPaid() ? Ticket::PAYMENT_PENDING : Ticket::PAYMENT_PAID;
         $ticket->save();
     }
 
@@ -72,13 +72,14 @@ class Tickets extends Component
     {
         $this->validate();
 
-        $quiniela = QuinielaEvent::first();
+        $quiniela = QuinielaEvent::current()->first();
 
         $ticketsQuery = Ticket::query()
-            ->where('active', true)
             ->when($this->quinielaId, function ($query) {
+                // Una jornada elegida explícitamente es historial: se ve completa, aunque ya este archivada.
                 $query->where('quiniela_event_id', $this->quinielaId);
             }, function ($query) use ($quiniela) {
+                $query->where('active', true);
                 if ($quiniela) {
                     $query->where('quiniela_event_id', $quiniela->id);
                 }

@@ -69,4 +69,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(QuinielaEvent::class, 'created_by');
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 }

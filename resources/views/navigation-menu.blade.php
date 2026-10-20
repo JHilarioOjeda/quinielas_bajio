@@ -1,17 +1,17 @@
-<nav x-data="{ open: false, userMenuOpen: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false, userMenuOpen: false }" class="bg-white border-b border-gray-200 shadow-sm">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between h-20">
             <div class="flex">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('quiniela.edit') }}">
-                        <x-application-logo class="block h-12 w-auto" />
+                        <x-application-logo class="block h-14 w-auto" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-right">
+                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex items-right text-base font-semibold">
                     <x-nav-link href="{{ route('admin-tickets') }}" :active="request()->routeIs('admin-tickets')">
                         Quinielas de usuarios
                     </x-nav-link>
@@ -24,6 +24,10 @@
 
                     <x-nav-link href="{{ route('admin-teams') }}" :active="request()->routeIs('admin-teams')">
                         Equipos
+                    </x-nav-link>
+
+                    <x-nav-link href="{{ route('admin.historial.index') }}" :active="request()->routeIs('admin.historial.*')">
+                        Historial
                     </x-nav-link>
                 </div>
             </div>
@@ -79,8 +83,8 @@
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="size-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <button @click="open = ! open" type="button" class="inline-flex items-center justify-center min-h-12 min-w-12 p-3 rounded-md text-primarycolor hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">
+                    <svg class="size-7" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -91,20 +95,24 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link href="{{ route('admin-tickets') }}" :active="request()->routeIs('admin-tickets')">
+        <div class="pt-2 pb-3 space-y-1 text-lg">
+            <x-responsive-nav-link class="!py-3" href="{{ route('admin-tickets') }}" :active="request()->routeIs('admin-tickets')">
                 {{ __('Quinielas de usuarios') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('admin-match-results') }}" :active="request()->routeIs('admin-match-results')">
+            <x-responsive-nav-link class="!py-3" href="{{ route('admin-match-results') }}" :active="request()->routeIs('admin-match-results')">
                 {{ __('Resultados de partidos') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('quiniela.edit') }}" :active="request()->routeIs('quiniela.edit')">
+            <x-responsive-nav-link class="!py-3" href="{{ route('quiniela.edit') }}" :active="request()->routeIs('quiniela.edit')">
                 {{ __('Edición de Quiniela') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link href="{{ route('admin-teams') }}" :active="request()->routeIs('admin-teams')">
+            <x-responsive-nav-link class="!py-3" href="{{ route('admin-teams') }}" :active="request()->routeIs('admin-teams')">
                 {{ __('Equipos') }}
-                
+
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link class="!py-3" href="{{ route('admin.historial.index') }}" :active="request()->routeIs('admin.historial.*')">
+                {{ __('Historial') }}
             </x-responsive-nav-link>
 
         </div>

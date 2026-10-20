@@ -1,8 +1,6 @@
 @if ($errors->any())
-    <div {{ $attributes }}>
-        <!-- <div class="font-medium text-red-600">{{ __('Whoops! Something went wrong.') }}</div> -->
-
-        <ul class="mt-3 list-disc list-inside text-sm text-red-600">
+    <div {{ $attributes->merge(['class' => 'rounded-lg border border-red-200 bg-red-50 px-4 py-3']) }}>
+        <ul class="list-disc list-inside text-base text-red-700 space-y-1">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach

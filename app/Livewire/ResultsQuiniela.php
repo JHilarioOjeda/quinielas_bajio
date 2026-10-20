@@ -2,16 +2,17 @@
 
 namespace App\Livewire;
 
+use App\Domain\Quiniela\TicketScorer;
+use App\Domain\Quiniela\TiebreakResolver;
 use Livewire\Component;
 use App\Models\QuinielaEvent;
 use App\Models\Ticket;
-use App\Models\MatchGame;
 
 class ResultsQuiniela extends Component
 {
     public function render()
     {
-        $quiniela = QuinielaEvent::with([
+        $quiniela = QuinielaEvent::current()->with([
             'eventMatches.matchGame.homeTeam',
             'eventMatches.matchGame.awayTeam',
         ])->first();
@@ -33,67 +34,30 @@ class ResultsQuiniela extends Component
             // Partido suplente y su resultado
             $substituteEventMatch = $quiniela->eventMatches->firstWhere('is_substitute', true);
             $substituteMatchId    = $substituteEventMatch?->match_id;
-            $substituteResult     = null;
 
-            if ($substituteEventMatch?->matchGame) {
-                $mg = $substituteEventMatch->matchGame;
-                if ($mg->home_score !== null && $mg->away_score !== null) {
-                    $substituteResult = $this->getResultCode($mg);
-                }
-            }
+            $resultsByMatchId = TicketScorer::resultsByMatchId($quiniela->eventMatches);
+            $substituteResult = $substituteMatchId ? ($resultsByMatchId[$substituteMatchId] ?? null) : null;
 
             $tickets = Ticket::with([
                 'ticketMatches.matchGame',
                 'ticketMatches.predictions',
             ])->where('quiniela_event_id', $quiniela->id)
-                ->where('payment_status', 'pagado')
+                ->where('payment_status', Ticket::PAYMENT_PAID)
                 ->where('active', true)
                 ->get();
 
             foreach ($tickets as $ticket) {
-                $ticket->hits    = $this->calculateTicketHits($ticket, $regularMatchIds);
-                $ticket->sub_hit = $this->calculateSubstituteHit($ticket, $substituteMatchId, $substituteResult);
+                $ticket->hits    = TicketScorer::hits($ticket, $regularMatchIds, $resultsByMatchId);
+                $ticket->sub_hit = TicketScorer::substituteHit($ticket, $substituteMatchId, $resultsByMatchId);
             }
 
             if ($tickets->isNotEmpty()) {
-                $maxHits = $tickets->max('hits');
+                $standings = TiebreakResolver::resolve($tickets, 'hits', 'sub_hit', $substituteResult !== null);
 
-                if ($maxHits !== null && $maxHits > 0) {
-                    $firstPlaceAll = $tickets->where('hits', $maxHits);
-
-                    // Aplicar diferenciador si hay más de 20 ganadores y el suplente tiene resultado
-                    if ($firstPlaceAll->count() > 20 && $substituteResult !== null) {
-                        $withSubHit = $firstPlaceAll->where('sub_hit', true);
-                        if ($withSubHit->isNotEmpty()) {
-                            $firstPlaceTickets        = $withSubHit->values();
-                            $firstTiebreakerApplied   = true;
-                        } else {
-                            $firstPlaceTickets = $firstPlaceAll->values();
-                        }
-                    } else {
-                        $firstPlaceTickets = $firstPlaceAll->values();
-                    }
-
-                    $secondHits = $tickets
-                        ->where('hits', '<', $maxHits)
-                        ->max('hits');
-
-                    if ($secondHits !== null && $secondHits > 0) {
-                        $secondPlaceAll = $tickets->where('hits', $secondHits);
-
-                        if ($secondPlaceAll->count() > 20 && $substituteResult !== null) {
-                            $withSubHit = $secondPlaceAll->where('sub_hit', true);
-                            if ($withSubHit->isNotEmpty()) {
-                                $secondPlaceTickets       = $withSubHit->values();
-                                $secondTiebreakerApplied  = true;
-                            } else {
-                                $secondPlaceTickets = $secondPlaceAll->values();
-                            }
-                        } else {
-                            $secondPlaceTickets = $secondPlaceAll->values();
-                        }
-                    }
-                }
+                $firstPlaceTickets        = $standings['firstPlace'];
+                $firstTiebreakerApplied   = $standings['firstTiebreakerApplied'];
+                $secondPlaceTickets       = $standings['secondPlace'];
+                $secondTiebreakerApplied  = $standings['secondTiebreakerApplied'];
 
                 $zeroHitsTickets = $tickets->where('hits', 0)->values();
             }
@@ -108,66 +72,5 @@ class ResultsQuiniela extends Component
             'firstTiebreakerApplied'   => $firstTiebreakerApplied,
             'secondTiebreakerApplied'  => $secondTiebreakerApplied,
         ]);
-    }
-
-    protected function calculateTicketHits(Ticket $ticket, array $regularMatchIds): int
-    {
-        $hits = 0;
-
-        foreach ($ticket->ticketMatches as $ticketMatch) {
-            if (! in_array($ticketMatch->match_id, $regularMatchIds, true)) {
-                continue;
-            }
-
-            $match = $ticketMatch->matchGame;
-
-            if (! $match || is_null($match->home_score) || is_null($match->away_score)) {
-                continue;
-            }
-
-            $resultCode  = $this->getResultCode($match);
-            $predictions = $ticketMatch->predictions->pluck('selection')->all();
-
-            if ($resultCode && in_array($resultCode, $predictions, true)) {
-                $hits++;
-            }
-        }
-
-        return $hits;
-    }
-
-    protected function calculateSubstituteHit(Ticket $ticket, ?int $substituteMatchId, ?string $substituteResult): bool
-    {
-        if ($substituteMatchId === null || $substituteResult === null) {
-            return false;
-        }
-
-        foreach ($ticket->ticketMatches as $ticketMatch) {
-            if ($ticketMatch->match_id !== $substituteMatchId) {
-                continue;
-            }
-
-            $predictions = $ticketMatch->predictions->pluck('selection')->all();
-            return in_array($substituteResult, $predictions, true);
-        }
-
-        return false;
-    }
-
-    protected function getResultCode(MatchGame $match): ?string
-    {
-        if (is_null($match->home_score) || is_null($match->away_score)) {
-            return null;
-        }
-
-        if ($match->home_score > $match->away_score) {
-            return '1';
-        }
-
-        if ($match->home_score < $match->away_score) {
-            return '2';
-        }
-
-        return 'X';
     }
 }

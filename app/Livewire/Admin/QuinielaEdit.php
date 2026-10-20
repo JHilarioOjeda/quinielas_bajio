@@ -57,7 +57,7 @@ class QuinielaEdit extends Component
     ];
 
     public function mount(){
-        $this->quinielaEvent = QuinielaEvent::first();
+        $this->quinielaEvent = QuinielaEvent::current()->first();
         if ($this->quinielaEvent) {
             $this->title = $this->quinielaEvent->title;
             $this->price = $this->quinielaEvent->price;
@@ -229,24 +229,27 @@ class QuinielaEdit extends Component
                 $this->quinielaEvent->save();
 
                 $this->quinielaEvent->tickets()->update(['active' => false]);
-
-                $eventMatches = $this->quinielaEvent->eventMatches()->with('matchGame')->get();
-
-                foreach ($eventMatches as $eventMatch) {
-                    if ($eventMatch->matchGame) {
-                        $eventMatch->matchGame->update([
-                            'home_score' => null,
-                            'away_score' => null,
-                            'status' => 'pending',
-                        ]);
-                    }
-                }
             });
 
             $this->status = 'finished';
+            $this->quinielaEvent = null;
+            $this->title = $this->price = $this->play_start = $this->play_end = $this->sales_start = $this->sales_end = null;
+            $this->status = 'open';
+            $this->substitudematch_hometeam = $this->substitudematch_awayteam = $this->substitudematch_datetime = null;
+            $this->substitudematch_hometeam_image = '';
+            $this->substitudematch_awayteam_image = '';
+            $this->matches = [
+                [
+                    'home_team' => '',
+                    'home_team_image' => '',
+                    'away_team' => '',
+                    'away_team_image' => '',
+                    'match_datetime' => '',
+                ],
+            ];
 
             LivewireAlert::title('Éxito')
-                ->text('La quiniela se finalizó, los tickets fueron archivados y los resultados de los partidos se limpiaron.')
+                ->text('La quiniela se finalizó y quedó archivada con sus resultados y tickets intactos. Puedes capturar la siguiente jornada.')
                 ->success()
                 ->show();
         } catch (Throwable $e) {
@@ -301,7 +304,7 @@ class QuinielaEdit extends Component
             }
         }
 
-        $quinielaEvent = $this->quinielaEvent ?? QuinielaEvent::first();
+        $quinielaEvent = $this->quinielaEvent ?? QuinielaEvent::current()->first();
 
         if (! $quinielaEvent) {
             LivewireAlert::title('Error')

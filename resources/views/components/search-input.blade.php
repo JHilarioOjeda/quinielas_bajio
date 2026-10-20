@@ -5,7 +5,7 @@
             t127.5 52.5z" class=""></path>
         </svg>
     </span>
-    <input {!! $attributes->merge(['class' => 'block bg-primarylight border border-gray-300 rounded-lg pl-8 py-2 focus:border-primarycolor focus:ring-primarycolor focus:ring-1 ']) !!}" 
+    <input {!! $attributes->merge(['class' => 'block bg-primarylight border border-gray-300 rounded-lg pl-10 py-2.5 text-base min-h-11 focus:border-primarycolor focus:ring-primarycolor focus:ring-1 ']) !!}"
            wire:model.live="{{ $wireModel }}" 
            placeholder="{{ $placeholder }}" 
            type="text" 
