@@ -49,7 +49,7 @@
                     <div class="w-full md:w-1/3">
                         <div class="flex flex-col">
                             <p class="text-base text-gray-800 mb-1">Fecha de inicio:</p>
-                            <x-input wire:model="play_start" type="date" min="{{ today()->toDateString() }}" class="  !w-full"/>
+                            <x-input wire:model.live="play_start" type="date" min="{{ today()->toDateString() }}" class="  !w-full"/>
                             <div>
                                 <span class="text-red-500 text-sm italic">
                                     @error('play_start')
@@ -62,7 +62,7 @@
                     <div class="w-full md:w-1/3">
                         <div class="flex flex-col">
                             <p class="text-base text-gray-800 mb-1">Fecha de fin:</p>
-                            <x-input wire:model="play_end" type="date" class="  !w-full"/>
+                            <x-input wire:model="play_end" type="date" min="{{ $play_start && $play_start >= today()->toDateString() ? $play_start : today()->toDateString() }}" class="  !w-full"/>
                             <div>
                                 <span class="text-red-500 text-sm italic">
                                     @error('play_end')
@@ -82,7 +82,7 @@
                     <div class="w-full md:w-1/3">
                         <div class="flex flex-col">
                             <p class="text-base text-gray-800 mb-1">Fecha de inicio:</p>
-                            <x-input wire:model="sales_start" type="datetime-local" class="  !w-full"/>
+                            <x-input wire:model="sales_start" type="datetime-local" max="{{ $play_start ? \Carbon\Carbon::parse($play_start)->subDay()->format('Y-m-d').'T23:59' : '' }}" class="  !w-full"/>
                             <div>
                                 <span class="text-red-500 text-sm italic">
                                     @error('sales_start')
@@ -95,7 +95,7 @@
                     <div class="w-full md:w-1/3">
                         <div class="flex flex-col">
                             <p class="text-base text-gray-800 mb-1">Fecha de fin:</p>
-                            <x-input wire:model="sales_end" type="datetime-local" max="{{ $play_start ? \Carbon\Carbon::parse($play_start)->format('Y-m-d').'T23:59' : '' }}" class="  !w-full"/>
+                            <x-input wire:model="sales_end" type="datetime-local" max="{{ $play_start ? \Carbon\Carbon::parse($play_start)->subDay()->format('Y-m-d').'T23:59' : '' }}" class="  !w-full"/>
                             <div>
                                 <span class="text-red-500 text-sm italic">
                                     @error('sales_end')

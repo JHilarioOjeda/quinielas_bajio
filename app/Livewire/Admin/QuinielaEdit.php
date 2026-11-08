@@ -175,7 +175,10 @@ class QuinielaEdit extends Component
     {
         $this->validate($this->generalDataRules(), [
             'play_start.after_or_equal' => 'La fecha de inicio de los partidos no puede ser anterior al día de hoy.',
+            'play_end.after_or_equal' => 'La fecha de fin de los partidos debe ser igual o posterior a la fecha de inicio.',
+            'sales_start.before' => 'La fecha de inicio de ventas debe ser anterior a la fecha de inicio de los partidos.',
             'sales_end.after' => 'La fecha de fin de ventas debe ser posterior a la fecha de inicio de ventas.',
+            'sales_end.before' => 'La fecha de fin de ventas debe ser anterior a la fecha de inicio de los partidos.',
         ]);
 
         try{
@@ -213,30 +216,9 @@ class QuinielaEdit extends Component
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'play_start' => 'required|date|after_or_equal:today',
-            'play_end' => 'required|date|after:play_start',
-            'sales_start' => 'required|date',
-            'sales_end' => [
-                'bail',
-                'required',
-                'date',
-                'after:sales_start',
-                function (string $attribute, mixed $value, $fail): void {
-                    if (! $this->play_start) {
-                        return;
-                    }
-
-                    try {
-                        $salesEndDate = Carbon::parse($value)->startOfDay();
-                        $playStartDate = Carbon::parse($this->play_start)->startOfDay();
-                    } catch (Throwable) {
-                        return;
-                    }
-
-                    if ($salesEndDate->gt($playStartDate)) {
-                        $fail('La fecha de fin de ventas no puede ser posterior a la fecha de inicio de los partidos.');
-                    }
-                },
-            ],
+            'play_end' => 'required|date|after_or_equal:play_start',
+            'sales_start' => 'bail|required|date|before:play_start',
+            'sales_end' => 'bail|required|date|after:sales_start|before:play_start',
             'status' => 'required',
         ];
     }

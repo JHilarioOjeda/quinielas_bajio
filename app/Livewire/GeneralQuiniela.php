@@ -19,6 +19,7 @@ use App\Models\MatchGame;
 use App\Models\Ticket;
 use App\Models\TicketMatch;
 use App\Models\Prediction;
+use App\Services\NotificationService;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -259,6 +260,8 @@ class GeneralQuiniela extends Component
                     }
                 }
             }
+
+            app(NotificationService::class)->ticketCreated($ticket);
 
             DB::commit();
 
