@@ -49,7 +49,7 @@
                     <div class="w-full md:w-1/3">
                         <div class="flex flex-col">
                             <p class="text-base text-gray-800 mb-1">Fecha de inicio:</p>
-                            <x-input wire:model="play_start" type="date" class="  !w-full"/>
+                            <x-input wire:model="play_start" type="date" min="{{ today()->toDateString() }}" class="  !w-full"/>
                             <div>
                                 <span class="text-red-500 text-sm italic">
                                     @error('play_start')
@@ -95,7 +95,7 @@
                     <div class="w-full md:w-1/3">
                         <div class="flex flex-col">
                             <p class="text-base text-gray-800 mb-1">Fecha de fin:</p>
-                            <x-input wire:model="sales_end" type="datetime-local" class="  !w-full"/>
+                            <x-input wire:model="sales_end" type="datetime-local" max="{{ $play_start ? \Carbon\Carbon::parse($play_start)->format('Y-m-d').'T23:59' : '' }}" class="  !w-full"/>
                             <div>
                                 <span class="text-red-500 text-sm italic">
                                     @error('sales_end')
@@ -141,6 +141,7 @@
                     <x-buttondesact onclick="confirmFinishQuiniela()" class="w-full sm:w-fit justify-center">
                         Finalizar quiniela
                     </x-buttondesact>
+                    @endif
 
                     <a href="{{ route('admin.lista-final') }}" target="_blank"
                        class="inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow transition ease-in-out duration-150 w-full sm:w-fit">
@@ -150,7 +151,6 @@
                         </svg>
                         Lista Final
                     </a>
-                    @endif
                 </div>
             </div>
         </div>

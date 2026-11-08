@@ -173,16 +173,10 @@ class QuinielaEdit extends Component
 
     public function saveGeneralDataQuiniela()
     {
-        $this->rules += [ 
-            'title' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'play_start' => 'required|date',
-            'play_end' => 'required|date|after:play_start',
-            'sales_start' => 'required|date',
-            'sales_end' => 'required|date|after:sales_start',
-            'status' => 'required',
-        ];
-        $this->validate();
+        $this->validate($this->generalDataRules(), [
+            'play_start.after_or_equal' => 'La fecha de inicio de los partidos no puede ser anterior al día de hoy.',
+            'sales_end.after' => 'La fecha de fin de ventas debe ser posterior a la fecha de inicio de ventas.',
+        ]);
 
         try{
 
@@ -211,7 +205,41 @@ class QuinielaEdit extends Component
                     ->error()
                     ->show();
         }
-    }   
+    }
+
+    protected function generalDataRules(): array
+    {
+        return [
+            'title' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'play_start' => 'required|date|after_or_equal:today',
+            'play_end' => 'required|date|after:play_start',
+            'sales_start' => 'required|date',
+            'sales_end' => [
+                'bail',
+                'required',
+                'date',
+                'after:sales_start',
+                function (string $attribute, mixed $value, $fail): void {
+                    if (! $this->play_start) {
+                        return;
+                    }
+
+                    try {
+                        $salesEndDate = Carbon::parse($value)->startOfDay();
+                        $playStartDate = Carbon::parse($this->play_start)->startOfDay();
+                    } catch (Throwable) {
+                        return;
+                    }
+
+                    if ($salesEndDate->gt($playStartDate)) {
+                        $fail('La fecha de fin de ventas no puede ser posterior a la fecha de inicio de los partidos.');
+                    }
+                },
+            ],
+            'status' => 'required',
+        ];
+    }
 
     public function finalizeQuiniela()
     {
