@@ -15,6 +15,9 @@ Route::get('/resultados', function () {
 Route::get('/admin/lista-final', [ListaFinalController::class, 'show'])
         ->name('admin.lista-final');
 
+Route::get('/admin/lista-final/version', [ListaFinalController::class, 'resultsVersion'])
+        ->name('admin.lista-final.version');
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -23,6 +26,10 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('/notificaciones', function () {
+        return view('notifications.index');
+    })->name('notifications.index');
 
     Route::middleware('admin')->group(function () {
         Route::get('/admin/quiniela', function () {

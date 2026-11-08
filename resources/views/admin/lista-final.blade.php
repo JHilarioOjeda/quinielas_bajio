@@ -86,7 +86,7 @@
 </div>
 
 <!-- Tarjeta principal -->
-<div class="page-card max-w-6xl mx-auto bg-white rounded-xl border border-primarycolor/30 shadow-sm overflow-hidden space-y-0">
+<div class="page-card max-w-6xl mx-auto bg-white rounded-xl border border-primarycolor/30 shadow-sm overflow-hidden space-y-0" @if(! isset($historialBack)) data-results-version="{{ $resultsVersion }}" @endif>
 
     <!-- Encabezado -->
     <div class="flex items-center justify-between gap-4 px-5 py-5 sm:px-8 border-b border-gray-100">
@@ -245,7 +245,7 @@
                         <td class="border border-gray-200 px-2 py-1 text-left {{ ($isWinner || $isSecond) && ! $excludedByTie ? 'font-bold text-gray-900' : 'text-gray-700' }}">
                             @if($loop->first)
                                 @if($entries->count() > 1)
-                                    <button type="button" class="collapse-button mr-1 rounded border border-gray-300 px-1 text-primarycolor" aria-expanded="true" aria-label="Contraer entradas de {{ $row['player_name'] }}" onclick="toggleEntries(this, {{ $ticketId }})">−</button>
+                                    <button type="button" class="collapse-button mr-1 rounded border border-gray-300 px-1 text-primarycolor" data-ticket-id="{{ $ticketId }}" aria-expanded="true" aria-label="Contraer entradas de {{ $row['player_name'] }}" onclick="toggleEntries(this, {{ $ticketId }})">−</button>
                                 @endif
                                 {{ strtoupper($row['player_name']) }} <span class="text-gray-500 font-normal">({{ $row['folio'] }})</span>
                             @endif
@@ -328,6 +328,53 @@
         button.setAttribute('aria-label', (expanded ? 'Expandir' : 'Contraer') + ' entradas');
         button.textContent = expanded ? '+' : '−';
     }
+
+    @if(! isset($historialBack))
+    // Solo se recupera la lista completa si la firma de los marcadores cambia.
+    (() => {
+        const versionUrl = @json(route('admin.lista-final.version'));
+        let checking = false;
+
+        async function checkResults() {
+            if (checking || document.hidden || window.matchMedia('print').matches) return;
+            checking = true;
+
+            try {
+                const response = await fetch(versionUrl, { cache: 'no-store', headers: { Accept: 'application/json' } });
+                if (!response.ok) return;
+                const { version } = await response.json();
+                const card = document.querySelector('.page-card');
+                if (!version || !card || version === card.dataset.resultsVersion) return;
+
+                const page = await fetch(window.location.href, { cache: 'no-store' });
+                if (!page.ok || document.hidden) return;
+                const html = await page.text();
+                const updated = new DOMParser().parseFromString(html, 'text/html').querySelector('.page-card');
+                if (!updated || !updated.dataset.resultsVersion) return;
+
+                const collapsed = Array.from(card.querySelectorAll('.collapse-button[aria-expanded="false"]'))
+                    .map(button => button.dataset.ticketId);
+                const scroll = card.querySelector('.overflow-x-auto')?.scrollLeft || 0;
+                card.innerHTML = updated.innerHTML;
+                card.dataset.resultsVersion = updated.dataset.resultsVersion;
+                collapsed.forEach(id => {
+                    const button = card.querySelector('.collapse-button[data-ticket-id="' + id + '"]');
+                    if (button) toggleEntries(button, id);
+                });
+                const tableContainer = card.querySelector('.overflow-x-auto');
+                if (tableContainer) tableContainer.scrollLeft = scroll;
+            } catch (error) {
+                // Una falla temporal se reintenta en la siguiente consulta.
+                console.warn('No se pudieron actualizar los resultados.', error);
+            } finally {
+                checking = false;
+            }
+        }
+
+        window.setInterval(checkResults, 10000);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) checkResults(); });
+    })();
+    @endif
 </script>
 </body>
 </html>
