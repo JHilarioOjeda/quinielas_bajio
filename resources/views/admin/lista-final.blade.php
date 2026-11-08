@@ -9,54 +9,61 @@
         /* Cabeceras verticales de partidos */
         th.col-rotate {
             padding: 0;
-            height: 96px;
-            vertical-align: bottom;
-            width: 28px;
+            height: 150px;
+            vertical-align: middle;
+            width: 64px;
         }
         .rotate-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            width: 100%;
+            height: 150px;
+            padding: 5px 3px;
+            font-size: 9px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+        .rotate-inner span {
             writing-mode: vertical-rl;
             text-orientation: mixed;
             transform: rotate(180deg);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-            height: 96px;
+            max-height: 140px;
+            overflow-wrap: anywhere;
+        }
+        .rotate-inner .match-vs {
+            opacity: .8;
             font-size: 8px;
-            font-weight: 700;
-            padding: 4px 2px;
-            line-height: 1.4;
         }
         /* Celdas de acierto / fallo */
         td.hit-cell  { background-color: #d1fae5 !important; color: #065f46; font-weight: 700; }
         td.miss-cell { color: #9ca3af; }
         td.pend-cell { color: #d1d5db; }
-        /* Filas ganadoras */
-        tr.winner-row td                { background-color: #fefce8 !important; }
-        tr.winner-row td.pts-cell       { background-color: #fde047 !important; color: #166534; font-weight: 900; }
-        tr.winner-row td.hit-cell       { background-color: #bbf7d0 !important; }
-        /* Excluidas por diferenciador */
-        tr.excluded-row                 { opacity: 0.45; }
-        /* Filas alternas */
-        tr.row-odd  td                  { background-color: #ffffff; }
-        tr.row-even td                  { background-color: #f0fdf4; }
+        .reglamento-list { list-style: none; counter-reset: regla; padding: 0; margin: 0; columns: 2; column-gap: 2rem; }
+        .reglamento-list li { counter-increment: regla; display: flex; align-items: flex-start; gap: .6rem; break-inside: avoid; margin-bottom: .7rem; line-height: 1.45; }
+        .reglamento-list li::before { content: counter(regla); flex: 0 0 1.4rem; height: 1.4rem; border-radius: 9999px; background: #4d8b23; color: white; text-align: center; line-height: 1.4rem; font-weight: 700; }
+        @media (max-width: 640px) { .reglamento-list { columns: 1; } }
         /* Impresión */
         @media print {
             .no-print { display: none !important; }
+            tr.entry-hidden { display: table-row !important; }
+            .collapse-button { display: none !important; }
             body      { background: white !important; }
             .page-card { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
             @page { size: landscape; margin: 5mm; }
         }
     </style>
 </head>
-<body class="bg-primarycolor min-h-screen p-3 font-sans">
+<body class="bg-primarycolor min-h-screen p-3 sm:p-5 font-sans">
 
 @php
-    $totalTickets = count($rows);
+    $totalTickets = $quiniela->tickets->count();
     $totalRecaudo = $quiniela->tickets->sum('amount_paid');
     $maxPoints    = $rows[0]['points'] ?? 0;
-    $winners      = collect($rows)->where('points', $maxPoints)->count();
+    $winners      = $firstPlace->count();
     $secondPoints = collect($rows)->where('points', '<', $maxPoints)->max('points');
+    $ticketGroups = collect($rows)->groupBy('ticket_id');
 @endphp
 
 <!-- Barra de acciones (sólo pantalla) -->
@@ -82,13 +89,14 @@
 <div class="page-card max-w-6xl mx-auto bg-white rounded-xl border border-primarycolor/30 shadow-sm overflow-hidden space-y-0">
 
     <!-- Encabezado -->
-    <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-gray-100">
+    <div class="flex items-center justify-between gap-4 px-5 py-5 sm:px-8 border-b border-gray-100">
         <div>
-            <p class="text-xs uppercase tracking-wide text-amber-600 font-semibold">Lista Final</p>
+            <p class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs uppercase tracking-wide text-amber-800 font-bold"><span aria-hidden="true">★</span> Lista Final</p>
             <h1 class="text-lg md:text-2xl font-semibold text-primarycolor leading-tight">
                 {{ $quiniela->title }}
             </h1>
-            <p class="text-[11px] text-gray-500 mt-0.5">
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                <span aria-hidden="true">▦</span>
                 Jornada del
                 {{ $quiniela->play_start ? \Carbon\Carbon::parse($quiniela->play_start)->locale('es')->translatedFormat('d F Y') : '' }}
                 al
@@ -100,6 +108,7 @@
         </div>
     </div>
 
+    <div class="px-5 pt-5 sm:px-8">
     <!-- Aviso partido suplente -->
     @if($substituteMatch)
     <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-[10px] text-amber-700 font-medium">
@@ -110,30 +119,30 @@
     <!-- Stats strip -->
     <div class="grid grid-cols-5 divide-x divide-gray-200 border-b border-gray-200 text-center">
         <div class="py-2 px-1">
-            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide">Participantes</p>
+            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide"><span aria-hidden="true">♟</span> Participantes</p>
             <p class="text-base font-bold text-primarycolor">{{ $totalTickets }}</p>
         </div>
         <div class="py-2 px-1">
-            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide">Partidos</p>
+            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide"><span aria-hidden="true">⚽</span> Partidos</p>
             <p class="text-base font-bold text-primarycolor">{{ $regularMatches->count() }}</p>
         </div>
         <div class="py-2 px-1">
-            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide">Mayor puntaje</p>
+            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide"><span aria-hidden="true">★</span> Mayor puntaje</p>
             <p class="text-base font-bold text-primarycolor">{{ $maxPoints }}</p>
         </div>
         <div class="py-2 px-1">
-            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide">{{ $winners === 1 ? 'Ganador' : 'Ganadores' }}</p>
+            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide"><span aria-hidden="true">🏆</span> {{ $winners === 1 ? 'Ganador' : 'Ganadores' }}</p>
             <p class="text-base font-bold text-primarycolor">{{ $winners }}</p>
         </div>
         <div class="py-2 px-1">
-            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide">Precio/jugada</p>
+            <p class="text-[9px] uppercase text-gray-400 font-semibold tracking-wide"><span aria-hidden="true">◇</span> Precio/jugada</p>
             <p class="text-base font-bold text-primarycolor">$ {{ number_format($quiniela->price, 0) }}</p>
         </div>
     </div>
 
     <!-- Bolsa total -->
     <div class="px-4 py-2 border-b border-gray-100 flex items-center gap-2">
-        <span class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide">Bolsa total:</span>
+        <span class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide"><span aria-hidden="true">🏆</span> Bolsa total:</span>
         <span class="text-sm font-bold text-primarycolor">$ {{ number_format($totalRecaudo, 0, '.', ',') }}</span>
     </div>
 
@@ -144,9 +153,6 @@
         </span>
         <span class="flex items-center gap-1">
             <span class="inline-block w-3 h-3 rounded bg-gray-100 border border-gray-300"></span> Fallo
-        </span>
-        <span class="flex items-center gap-1">
-            <span class="inline-block w-3 h-3 rounded bg-yellow-100 border border-yellow-300"></span> Líder
         </span>
         <span class="flex items-center gap-1">
             <span class="inline-block w-3 h-3 rounded bg-amber-50 border border-amber-200"></span> Resultado pendiente
@@ -160,7 +166,7 @@
 
     <!-- Tabla de predicciones -->
     <div class="overflow-x-auto">
-        <table class="w-full border-collapse text-[10px]" style="table-layout:fixed;">
+        <table class="w-full border-collapse text-[10px]" style="table-layout:fixed; min-width: {{ 240 + (64 * ($regularMatches->count() + ($substituteMatch ? 1 : 0))) }}px;">
             <thead>
                 <tr>
                     <!-- # -->
@@ -175,7 +181,9 @@
                             $away = $em->matchGame?->awayTeam?->name ?? 'Visitante';
                         @endphp
                         <th class="col-rotate border border-gray-200">
-                            <span class="rotate-inner bg-primarycolor text-white">{{ strtoupper($home) }} vs {{ strtoupper($away) }}</span>
+                            <div class="rotate-inner bg-primarycolor text-white" title="{{ $home }} vs {{ $away }}">
+                                <span>{{ strtoupper($home) }}</span><span class="match-vs">VS</span><span>{{ strtoupper($away) }}</span>
+                            </div>
                         </th>
                     @endforeach
 
@@ -186,7 +194,9 @@
                             $sa = $substituteMatch->matchGame?->awayTeam?->name ?? 'Visitante';
                         @endphp
                         <th class="col-rotate border border-gray-200">
-                            <span class="rotate-inner bg-amber-500 text-white">PS: {{ strtoupper($sh) }} vs {{ strtoupper($sa) }}</span>
+                            <div class="rotate-inner bg-amber-500 text-white" title="Suplente: {{ $sh }} vs {{ $sa }}">
+                                <span>{{ strtoupper($sh) }}</span><span class="match-vs">PS · VS</span><span>{{ strtoupper($sa) }}</span>
+                            </div>
                         </th>
                     @endif
 
@@ -218,8 +228,10 @@
             </thead>
 
             <tbody class="divide-y divide-gray-100">
-                @forelse($rows as $i => $row)
+                @forelse($ticketGroups as $ticketId => $entries)
+                  @foreach($entries as $row)
                     @php
+                        $i = $loop->index;
                         $isWinner      = $row['points'] === $maxPoints && $maxPoints > 0;
                         $isSecond      = ! $isWinner && $secondPoints !== null && $row['points'] === $secondPoints;
                         $hasSubHit     = $row['sub_hit'] ?? false;
@@ -227,14 +239,16 @@
                                       || ($isSecond && $secondTiebreakerApplied && ! $hasSubHit);
                         $markedByTie   = ($isWinner && $firstTiebreakerApplied  && $hasSubHit)
                                       || ($isSecond && $secondTiebreakerApplied && $hasSubHit);
-                        $rowClass = $excludedByTie
-                            ? 'excluded-row'
-                            : (($isWinner && ! $excludedByTie) ? 'winner-row' : ($i % 2 === 0 ? 'row-even' : 'row-odd'));
                     @endphp
-                    <tr class="{{ $rowClass }}">
-                        <td class="border border-gray-200 text-center text-gray-400 text-[9px]">{{ $i + 1 }}</td>
+                    <tr class="{{ $i ? 'ticket-entry-'.$ticketId : '' }}">
+                        <td class="border border-gray-200 text-center text-gray-500 text-[9px]">{{ $row['entry_number'] }}/{{ $row['entry_total'] }}</td>
                         <td class="border border-gray-200 px-2 py-1 text-left {{ ($isWinner || $isSecond) && ! $excludedByTie ? 'font-bold text-gray-900' : 'text-gray-700' }}">
-                            {{ strtoupper($row['player_name']) }}
+                            @if($loop->first)
+                                @if($entries->count() > 1)
+                                    <button type="button" class="collapse-button mr-1 rounded border border-gray-300 px-1 text-primarycolor" aria-expanded="true" aria-label="Contraer entradas de {{ $row['player_name'] }}" onclick="toggleEntries(this, {{ $ticketId }})">−</button>
+                                @endif
+                                {{ strtoupper($row['player_name']) }} <span class="text-gray-500 font-normal">({{ $row['folio'] }})</span>
+                            @endif
                             @if($markedByTie)
                                 <span class="text-[7px] text-amber-600 font-bold"> ★PS</span>
                             @endif
@@ -265,6 +279,7 @@
 
                         <td class="border border-gray-200 text-center font-bold text-sm pts-cell">{{ $row['points'] }}</td>
                     </tr>
+                  @endforeach
                 @empty
                     <tr>
                         <td colspan="{{ 2 + $regularMatches->count() + ($substituteMatch ? 1 : 0) + 1 }}"
@@ -276,11 +291,13 @@
             </tbody>
         </table>
     </div>
+    </div>
 
     <!-- Reglamento -->
-    <div class="px-4 py-4 border-t border-gray-200 space-y-2">
-        <h2 class="text-xs uppercase font-semibold tracking-wide text-amber-600">Reglamento</h2>
-        <ol class="list-decimal list-inside space-y-0.5 text-[10px] text-gray-600 leading-relaxed">
+    <div class="px-5 py-5 sm:px-8 border-t border-gray-200">
+        <div class="rounded-xl border border-gray-200 p-4 sm:p-5">
+        <h2 class="mb-4 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm uppercase font-bold tracking-wide text-primarycolor"><span aria-hidden="true">☷</span> Reglamento</h2>
+        <ol class="reglamento-list text-xs text-gray-700">
             <li>El ganador o ganadores es quien tenga la mayor cantidad de aciertos y se reparte en partes iguales.</li>
             <li>Favor de revisar la prelista. En caso de error existe un tiempo determinado para notificarlo y realizar correcciones.</li>
             <li>Todos los partidos solo cuentan el resultado de los 90 minutos más el agregado. No cuentan tiempos extras ni penales.</li>
@@ -290,6 +307,7 @@
             <li>Si se mandan quinielas con algún espacio en blanco o la letra no sea legible o no sea L, E, V, se tomará como empate.</li>
             <li>Para segundos lugares se reparte a la segunda mayor cantidad de aciertos con un tope de máximo 20 ganadores. Solo se repartirá premio si como mínimo les corresponden $100.00 pesos a cada uno; de lo contrario el premio se acumula para la siguiente jornada.</li>
         </ol>
+        </div>
     </div>
 
     <!-- Pie -->
@@ -299,5 +317,17 @@
 
 </div>
 
+<script>
+    function toggleEntries(button, ticketId) {
+        const expanded = button.getAttribute('aria-expanded') === 'true';
+        document.querySelectorAll('.ticket-entry-' + ticketId).forEach(row => {
+            row.classList.toggle('entry-hidden', expanded);
+            row.style.display = expanded ? 'none' : '';
+        });
+        button.setAttribute('aria-expanded', String(!expanded));
+        button.setAttribute('aria-label', (expanded ? 'Expandir' : 'Contraer') + ' entradas');
+        button.textContent = expanded ? '+' : '−';
+    }
+</script>
 </body>
 </html>

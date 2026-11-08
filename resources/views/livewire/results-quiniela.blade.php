@@ -336,7 +336,7 @@
                                         <li class="flex items-center justify-between">
                                             <div class="min-w-0 pr-2">
                                                 <p class="font-semibold text-emerald-900 truncate">{{ $ticket->player_name }}</p>
-                                                <p class="text-sm text-emerald-700/80">Folio: <span class="font-mono">{{ $ticket->folio }}</span></p>
+                                                <p class="text-sm text-emerald-700/80">Folio: <span class="font-mono">{{ $ticket->folio }}</span> · Entrada {{ $ticket->entry_number }}/{{ $ticket->entry_total }}</p>
                                             </div>
                                             <span class="text-sm text-emerald-800 font-semibold flex-shrink-0">{{ $ticket->hits }} ✔</span>
                                         </li>
@@ -373,7 +373,7 @@
                                         <li class="flex items-center justify-between">
                                             <div class="min-w-0 pr-2">
                                                 <p class="font-semibold text-blue-900 truncate">{{ $ticket->player_name }}</p>
-                                                <p class="text-sm text-blue-700/80">Folio: <span class="font-mono">{{ $ticket->folio }}</span></p>
+                                                <p class="text-sm text-blue-700/80">Folio: <span class="font-mono">{{ $ticket->folio }}</span> · Entrada {{ $ticket->entry_number }}/{{ $ticket->entry_total }}</p>
                                             </div>
                                             <span class="text-sm text-blue-800 font-semibold flex-shrink-0">{{ $ticket->hits }} ✔</span>
                                         </li>
@@ -388,7 +388,7 @@
                                 <h3 class="font-semibold text-gray-800 text-base">0 aciertos</h3>
                                 <span class="px-2 py-1 rounded-full bg-white text-gray-700 text-sm font-semibold border border-gray-200">
                                     @if($zeroHitsTickets->isNotEmpty())
-                                        {{ $zeroHitsTickets->count() }} jugador(es)
+                                        {{ $zeroHitsTickets->count() }} entrada(s)
                                     @else
                                         ---
                                     @endif
@@ -403,7 +403,7 @@
                                         <li class="flex items-center justify-between">
                                             <div class="min-w-0 pr-2">
                                                 <p class="font-semibold text-gray-900 truncate">{{ $ticket->player_name }}</p>
-                                                <p class="text-sm text-gray-600">Folio: <span class="font-mono">{{ $ticket->folio }}</span></p>
+                                                <p class="text-sm text-gray-600">Folio: <span class="font-mono">{{ $ticket->folio }}</span> · Entrada {{ $ticket->entry_number }}/{{ $ticket->entry_total }}</p>
                                             </div>
                                         </li>
                                     @endforeach

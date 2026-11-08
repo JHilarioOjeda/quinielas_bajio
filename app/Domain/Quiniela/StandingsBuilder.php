@@ -18,7 +18,6 @@ class StandingsBuilder
     {
         $regularMatches = $quiniela->eventMatches->where('is_substitute', false)->values();
         $substituteMatch = $quiniela->eventMatches->firstWhere('is_substitute', true);
-        $regularMatchIds = $regularMatches->pluck('match_id')->all();
 
         $resultsByMatchId = TicketScorer::resultsByMatchId($quiniela->eventMatches);
 
@@ -36,27 +35,45 @@ class StandingsBuilder
                 $predByMatchId[$tm->match_id] = $tm->predictions->pluck('selection')->toArray();
             }
 
-            $predictions = [];
-            foreach ($regularMatches as $em) {
-                $sels = $predByMatchId[$em->match_id] ?? [];
-                $predictions[$em->id] = array_map(fn ($s) => $displayMap[$s] ?? $s, $sels);
+            $combinations = [[]];
+            foreach ($quiniela->eventMatches as $eventMatch) {
+                $selections = array_values(array_unique($predByMatchId[$eventMatch->match_id] ?? []));
+                $selections = $selections ?: [null];
+                $expanded = [];
+                foreach ($combinations as $combination) {
+                    foreach ($selections as $selection) {
+                        $expanded[] = $combination + [$eventMatch->id => $selection];
+                    }
+                }
+                $combinations = $expanded;
             }
 
-            $subPrediction = [];
-            if ($substituteMatch) {
-                $sels = $predByMatchId[$substituteMatch->match_id] ?? [];
-                $subPrediction = array_map(fn ($s) => $displayMap[$s] ?? $s, $sels);
-            }
+            foreach ($combinations as $index => $combination) {
+                $predictions = [];
+                $points = 0;
+                foreach ($regularMatches as $eventMatch) {
+                    $selection = $combination[$eventMatch->id] ?? null;
+                    $predictions[$eventMatch->id] = $selection ? [$displayMap[$selection] ?? $selection] : [];
+                    if ($selection !== null && $selection === ($resultsByMatchId[$eventMatch->match_id] ?? null)) {
+                        $points++;
+                    }
+                }
+                $subSelection = $substituteMatch ? ($combination[$substituteMatch->id] ?? null) : null;
+                $subResult = $substituteMatch ? ($resultsByMatchId[$substituteMatch->match_id] ?? null) : null;
 
-            $rows[] = [
-                'folio'          => $ticket->folio,
-                'player_name'    => $ticket->player_name,
-                'phone_number'   => $ticket->phone_number,
-                'predictions'    => $predictions,
-                'sub_prediction' => $subPrediction,
-                'sub_hit'        => TicketScorer::substituteHit($ticket, $substituteMatch?->match_id, $resultsByMatchId),
-                'points'         => TicketScorer::hits($ticket, $regularMatchIds, $resultsByMatchId),
-            ];
+                $rows[] = [
+                    'ticket_id' => $ticket->id,
+                    'folio' => $ticket->folio,
+                    'player_name' => $ticket->player_name,
+                    'phone_number' => $ticket->phone_number,
+                    'entry_number' => $index + 1,
+                    'entry_total' => count($combinations),
+                    'predictions' => $predictions,
+                    'sub_prediction' => $subSelection ? [$displayMap[$subSelection] ?? $subSelection] : [],
+                    'sub_hit' => $subSelection !== null && $subSelection === $subResult,
+                    'points' => $points,
+                ];
+            }
         }
 
         usort($rows, function ($a, $b) {
@@ -66,7 +83,7 @@ class StandingsBuilder
             if ($b['sub_hit'] !== $a['sub_hit']) {
                 return $b['sub_hit'] <=> $a['sub_hit'];
             }
-            return strcmp($a['player_name'], $b['player_name']);
+            return strcmp($a['player_name'], $b['player_name']) ?: ($a['ticket_id'] <=> $b['ticket_id']) ?: ($a['entry_number'] <=> $b['entry_number']);
         });
 
         $subResultAvailable = $substituteMatch && ($resultsByMatchId[$substituteMatch->match_id] ?? null) !== null;
@@ -82,6 +99,8 @@ class StandingsBuilder
             'firstTiebreakerApplied'  => $standings['firstTiebreakerApplied'],
             'secondTiebreakerApplied' => $standings['secondTiebreakerApplied'],
             'subResultAvailable'      => $subResultAvailable,
+            'firstPlace'              => $standings['firstPlace'],
+            'secondPlace'             => $standings['secondPlace'],
         ];
     }
 }
